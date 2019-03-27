@@ -1,36 +1,73 @@
 
 package com.maquinadebusca.app.controller;
 
-import java.io.BufferedReader; import java.io.IOException; 
-import java.io.InputStream; import java.io.InputStreamReader; 
-import java.net.URL; import java.net.URLConnection; 
+import java.net.URL; 
+import java.util.List; 
+import java.util.LinkedList;
+import org.jsoup.Jsoup; 
+import org.jsoup.nodes.Document; 
+import org.jsoup.nodes.Element; 
+import org.jsoup.select.Elements; 
 import org.springframework.http.MediaType; 
 import org.springframework.web.bind.annotation.GetMapping; 
 import org.springframework.web.bind.annotation.RestController; 
 import org.springframework.web.bind.annotation.RequestMapping; 
+import com.maquinadebusca.app.model.Documento;
 
 @RestController 
 @RequestMapping ("/coletor") // URL: http://localhost:8080/coletor 
 public class Coletor {
     // URL: http://localhost:8080/coletor/iniciar    
-    @GetMapping (value = "/iniciar", produces = MediaType.TEXT_PLAIN_VALUE)
- public String iniciar () {        
-      StringBuilder pagina = new StringBuilder ();     
-      try {    
-          URL url = new URL
-         ("http://journals.ecs.soton.ac.uk/java/tutorial/networking/urls/readingWriting.html");
-          URLConnection url_connection = url.openConnection ();   
-          InputStream is = url_connection.getInputStream ();  
-          InputStreamReader reader = new InputStreamReader (is);   
-          BufferedReader buffer = new BufferedReader (reader);
-          String linha;      
- while ((linha = buffer.readLine ()) != null) { 
-        pagina.append (linha);    
-    }  
-  } catch (IOException e) {
-    pagina.append ("Erro: não foi possível coletar a página.");   
-  }     
-    return pagina.toString (); 
-      }  
+    @GetMapping (value = "/iniciar", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    
+      public Documento iniciar (){
+          URL url;
+          Documento d= new Documento();
+          try{
+              url=new URL
+          ("http://journals.ecs.soton.ac.uk/java/tutorial/networking/urls/readingWriting.html");
+           
+              Document doc = Jsoup.connect (url.toString()).get(); 
+              Elements links=doc.select("a[href]");
+              
+              d.setUrl(url);
+              d.setTexto(doc.html());
+              d.setVisao(doc.text());
+              
+              List<String> urls=new LinkedList();
+              for (Element link:links);
+              if ((!link.attr("abs:href").equals("")&&(link.attr("abs:href")!=null)))
+              urls.add(link.attr("abs:href"));
+              d.setUrl(urls);
+              
+             System.out.println ("\n\n\n=================================================");       
+             System.out.println (">>> URL:");       
+             System.out.println ("=================================================");
+             System.out.println (d.getUrl ()); 
+             
+             System.out.println ("\n\n\n=================================================");       
+             System.out.println (">>> Página:");       
+             System.out.println ("=================================================");       
+             System.out.println (d.getTexto ()); 
+ 
+             System.out.println ("\n\n\n=================================================");       
+             System.out.println (">>> Visão:");       
+             System.out.println ("=================================================");       
+             System.out.println (d.getVisao ()); 
+              
+             System.out.println("\n\n\n=================================================");
+                 
+             System.out.println(">>>URLs: ");
+             System.out.println("=================================================");
+             urls=d.getUrls();
+             for (String u: urls)
+                 System.out.println(u);
+             { catch (Exception e)}
+             System.out.println("Erro ao coletar a pagina");
+             e.printStarkTrace();
+          }
+      }
+      return d;
+         }  
  }   
 
