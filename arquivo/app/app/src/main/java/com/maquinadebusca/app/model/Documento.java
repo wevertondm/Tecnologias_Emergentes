@@ -9,13 +9,6 @@ public class Documento {
   private String visao; 
   private List<String> urls;
 
-    public Documento(URL url, String texto, String visao, List<String> urls) {
-        this.url = url;
-        this.texto = texto;
-        this.visao = visao;
-        this.urls = urls;
-    }
-
     public Documento() {
     }
 
